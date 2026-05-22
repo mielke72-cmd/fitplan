@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="FitPlan" />
+<meta name="theme-color" content="#0F766E" />
+<title>FitPlan · 8 Week</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%230F766E'/><text x='90' y='118' font-size='90' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700'>F</text></svg>" />
+<style>
+  :root {
+    --teal: #0F766E;
+    --teal-light: #14B8A6;
+    --teal-bg: #F0FDFA;
+    --coral: #F97316;
+    --coral-bg: #FFF7ED;
+    --amber: #D97706;
+    --amber-bg: #FFFBEB;
+    --green: #16A34A;
+    --green-bg: #F0FDF4;
+    --blue: #2563EB;
+    --blue-bg: #EFF6FF;
+    --purple: #7C3AED;
+    --purple-bg: #F5F3FF;
+    --rose: #E11D48;
+    --rose-bg: #FFF1F2;
+    --ink: #0F172A;
+    --slate: #475569;
+    --slate-light: #94A3B8;
+    --line: #E2E8F0;
+    --bg: #F8FAFC;
+    --card: #FFFFFF;
+    --radius: 14px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; overscroll-behavior-y: contain; }
+  body { padding: env(safe-area-inset-top) env(safe-area-inset-right) calc(env(safe-area-inset-bottom) + 80px) env(safe-area-inset-left); min-height: 100vh; }
+
+  /* ---------- Header ---------- */
+  .top {
+    background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
+    color: white;
+    padding: 18px 18px 22px;
+    border-radius: 0 0 24px 24px;
+    position: sticky; top: env(safe-area-inset-top); z-index: 10;
+    box-shadow: 0 4px 20px rgba(15, 118, 110, 0.18);
+  }
+  .top-row { display: flex; justify-content: space-between; align-items: center; }
+  .brand { font-size: 13px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; opacity: 0.85; }
+  .menu-btn { background: rgba(255,255,255,0.15); border: none; color: white; width: 34px; height: 34px; border-radius: 10px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .menu-btn:active { transform: scale(0.94); background: rgba(255,255,255,0.25); }
+  .day-strip { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; }
+  .day-num { font-size: 28px; font-weight: 700; line-height: 1; }
+  .day-sub { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+  .nav-arrows { display: flex; gap: 6px; }
+  .arrow {
+    background: rgba(255,255,255,0.2); border: none; color: white;
+    width: 38px; height: 38px; border-radius: 12px; font-size: 20px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .arrow:active { transform: scale(0.92); background: rgba(255,255,255,0.32); }
+  .arrow:disabled { opacity: 0.35; }
+
+  .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+  .stat-pill {
+    background: rgba(255,255,255,0.18); backdrop-filter: blur(6px);
+    border-radius: 12px; padding: 10px 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .stat-icon { width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .stat-text { font-size: 11px; opacity: 0.85; line-height: 1.2; }
+  .stat-num { font-size: 15px; font-weight: 600; line-height: 1.2; }
+
+  /* ---------- Tabs ---------- */
+  .tabs {
+    position: sticky; top: calc(env(safe-area-inset-top) + 0px); z-index: 9;
+    display: flex; gap: 4px;
+    padding: 12px 14px 8px;
+    background: var(--bg);
+  }
+  .tab {
+    flex: 1; padding: 10px 6px; font-size: 13px; font-weight: 600;
+    border: none; background: var(--card); color: var(--slate);
+    border-radius: 12px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    border: 1px solid var(--line);
+    transition: all 0.15s;
+  }
+  .tab:active { transform: scale(0.96); }
+  .tab.active { background: var(--ink); color: white; border-color: var(--ink); }
+  .tab-icon { font-size: 15px; }
+
+  /* ---------- Panels ---------- */
+  .panel { display: none; padding: 4px 14px 30px; }
+  .panel.active { display: block; }
+
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 10px;
+    border: 1px solid var(--line);
+  }
+  .card.done { background: #F1F5F9; }
+
+  /* Meal cards */
+  .meal-card { position: relative; overflow: hidden; }
+  .meal-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  }
+  .meal-card[data-meal="b"]::before { background: var(--amber); }
+  .meal-card[data-meal="l"]::before { background: var(--teal); }
+  .meal-card[data-meal="s"]::before { background: var(--purple); }
+  .meal-card[data-meal="d"]::before { background: var(--rose); }
+
+  .meal-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; padding-left: 10px; }
+  .meal-emoji { font-size: 22px; line-height: 1; }
+  .meal-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .meal-title.done { color: var(--slate-light); }
+  .meal-title.done .meal-name { text-decoration: line-through; }
+  .macros { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .macro-pill {
+    font-size: 11px; padding: 3px 8px; border-radius: 8px;
+    font-weight: 600;
+  }
+  .macro-pill.kcal { background: var(--coral-bg); color: var(--coral); }
+  .macro-pill.p { background: var(--teal-bg); color: var(--teal); }
+  .macro-pill.c { background: var(--amber-bg); color: var(--amber); }
+  .macro-pill.f { background: var(--purple-bg); color: var(--purple); }
+
+  .check {
+    width: 30px; height: 30px; flex-shrink: 0;
+    border-radius: 10px; border: 2px solid var(--line);
+    background: white; cursor: pointer; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .check:active { transform: scale(0.88); }
+  .check.done { background: var(--green); border-color: var(--green); }
+  .check.done::after { content: '✓'; color: white; font-size: 17px; font-weight: 700; }
+
+  .opts { padding-left: 10px; }
+  .opt {
+    font-size: 13px; color: var(--slate); padding: 6px 0;
+    border-top: 1px solid var(--line); line-height: 1.45;
+  }
+  .opt:first-child { border-top: none; padding-top: 2px; }
+  .opt::before { content: '•'; color: var(--teal); font-weight: 700; margin-right: 6px; }
+
+  /* Summary card */
+  .summary-card {
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    color: white;
+    border: none;
+  }
+  .summary-card .label { font-size: 11px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.6px; }
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; }
+  .summary-val { font-size: 20px; font-weight: 700; }
+  .summary-sub { font-size: 11px; opacity: 0.6; margin-top: 2px; }
+
+  /* Info banner */
+  .banner {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 10px 12px; border-radius: var(--radius-sm);
+    margin-bottom: 10px; font-size: 12px; line-height: 1.45;
+  }
+  .banner-icon { font-size: 16px; flex-shrink: 0; }
+  .banner.info { background: var(--blue-bg); color: var(--blue); }
+  .banner.warn { background: var(--amber-bg); color: var(--amber); }
+
+  /* Session pill */
+  .session-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600;
+    padding: 6px 12px; border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  .session-pill.lift { background: var(--teal-bg); color: var(--teal); }
+  .session-pill.run { background: var(--coral-bg); color: var(--coral); }
+  .session-pill.golf { background: var(--green-bg); color: var(--green); }
+
+  /* Training items */
+  .progress-card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 12px 14px; margin-bottom: 10px;
+  }
+  .progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .progress-label { font-size: 12px; color: var(--slate); font-weight: 600; }
+  .progress-num { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .progress-bar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--teal), var(--teal-light));
+    transition: width 0.3s ease;
+  }
+
+  .ex-list { background: var(--card); border-radius: var(--radius); border: 1px solid var(--line); overflow: hidden; }
+  .ex-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    border-top: 1px solid var(--line);
+    cursor: pointer; min-height: 56px;
+  }
+  .ex-item:first-child { border-top: none; }
+  .ex-item:active { background: #F8FAFC; }
+  .ex-body { flex: 1; min-width: 0; }
+  .ex-name { font-size: 14px; font-weight: 500; line-height: 1.35; }
+  .ex-name.done { text-decoration: line-through; color: var(--slate-light); }
+  .ex-sub { font-size: 12px; color: var(--slate); margin-top: 2px; }
+
+  /* Shopping */
+  .shop-header {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--slate);
+    padding: 14px 4px 6px; display: flex; align-items: center; gap: 8px;
+  }
+  .shop-header-icon { font-size: 14px; }
+  .shop-card { padding: 0; overflow: hidden; }
+  .shop-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 14px;
+    border-top: 1px solid var(--line);
+    cursor: pointer; min-height: 48px;
+  }
+  .shop-item:first-child { border-top: none; }
+  .shop-item:active { background: #F8FAFC; }
+  .shop-text { font-size: 14px; line-height: 1.35; flex: 1; }
+  .shop-text.done { text-decoration: line-through; color: var(--slate-light); }
+
+  /* Footer / actions */
+  .footer-bar {
+    padding: 14px;
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    font-size: 11px; color: var(--slate-light);
+  }
+  .reset-btn {
+    background: white; border: 1px solid var(--line);
+    padding: 8px 14px; border-radius: 10px;
+    font-size: 13px; font-weight: 500; color: var(--slate);
+    cursor: pointer;
+  }
+  .reset-btn:active { transform: scale(0.96); background: #F1F5F9; }
+
+  /* Menu sheet */
+  .sheet-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    z-index: 100;
+    align-items: flex-end; justify-content: center;
+  }
+  .sheet-overlay.open { display: flex; animation: fadeIn 0.2s; }
+  .sheet {
+    background: white; width: 100%; max-width: 500px;
+    border-radius: 20px 20px 0 0;
+    padding: 14px 14px calc(env(safe-area-inset-bottom) + 20px);
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .sheet-handle { width: 40px; height: 4px; background: var(--line); border-radius: 2px; margin: 0 auto 14px; }
+  .sheet-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; padding: 0 6px; }
+  .sheet-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px; border-radius: 12px; cursor: pointer;
+    font-size: 15px;
+  }
+  .sheet-item:active { background: #F1F5F9; }
+  .sheet-item-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .sheet-divider { height: 1px; background: var(--line); margin: 6px 0; }
+
+  /* Plan summary modal */
+  .plan-card { padding: 14px; margin-bottom: 10px; background: var(--card); border-radius: var(--radius); border: 1px solid var(--line); }
+  .plan-card h3 { margin: 0 0 8px; font-size: 14px; color: var(--teal); }
+  .plan-card p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--slate); }
+  .plan-card ul { margin: 6px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.55; color: var(--slate); }
+
+  /* Streak fire */
+  .streak {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12px; font-weight: 600;
+    padding: 4px 9px; border-radius: 999px;
+    background: rgba(255,255,255,0.2);
+  }
+
+  /* Subtle pulse for today's day */
+  .today-badge {
+    font-size: 10px; font-weight: 700;
+    background: white; color: var(--teal);
+    padding: 2px 7px; border-radius: 6px;
+    margin-left: 8px; vertical-align: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-row">
+    <div class="brand">🔥 FitPlan · 8 Weeks</div>
+    <button class="menu-btn" id="menu-btn" aria-label="Menu">⋯</button>
+  </div>
+  <div class="day-strip">
+    <div>
+      <div class="day-num"><span id="day-num">1</span><span id="today-badge"></span></div>
+      <div class="day-sub" id="day-sub">Mon · Lift Lower</div>
+    </div>
+    <div class="nav-arrows">
+      <button class="arrow" id="prev-day" aria-label="Previous day">‹</button>
+      <button class="arrow" id="next-day" aria-label="Next day">›</button>
+    </div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-pill">
+      <div class="stat-icon">🍽️</div>
+      <div>
+        <div class="stat-text">Meals logged</div>
+        <div class="stat-num" id="stat-meals">0/4</div>
+      </div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-icon">💪</div>
+      <div>
+        <div class="stat-text">Training</div>
+        <div class="stat-num" id="stat-train">0/0</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="meals"><span class="tab-icon">🍽️</span>Meals</button>
+  <button class="tab" data-panel="training"><span class="tab-icon">💪</span>Train</button>
+  <button class="tab" data-panel="shopping"><span class="tab-icon">🛒</span>Shop</button>
+</div>
+
+<div class="panel active" id="panel-meals"></div>
+<div class="panel" id="panel-training"></div>
+<div class="panel" id="panel-shopping"></div>
+
+<div class="footer-bar">
+  <span>Auto-saved on this device</span>
+  <button class="reset-btn" id="reset-day">Reset day</button>
+</div>
+
+<!-- Menu sheet -->
+<div class="sheet-overlay" id="menu-sheet">
+  <div class="sheet" id="sheet-inner">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Menu</div>
+    <div class="sheet-item" data-action="go-today">
+      <div class="sheet-item-icon" style="background: var(--teal-bg); color: var(--teal);">📅</div>
+      <div>Jump to today</div>
+    </div>
+    <div class="sheet-item" data-action="plan">
+      <div class="sheet-item-icon" style="background: var(--blue-bg); color: var(--blue);">📋</div>
+      <div>View full plan</div>
+    </div>
+    <div class="sheet-item" data-action="export">
+      <div class="sheet-item-icon" style="background: var(--purple-bg); color: var(--purple);">📤</div>
+      <div>Export progress</div>
+    </div>
+    <div class="sheet-divider"></div>
+    <div class="sheet-item" data-action="reset-all" style="color: var(--rose);">
+      <div class="sheet-item-icon" style="background: var(--rose-bg); color: var(--rose);">🗑️</div>
+      <div>Reset all progress</div>
+    </div>
+  </div>
+</div>
+
+<!-- Plan sheet -->
+<div class="sheet-overlay" id="plan-sheet">
+  <div class="sheet" style="max-height: 80vh; overflow-y: auto;">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Your 8-week plan</div>
+    <div class="plan-card">
+      <h3>🎯 Goal</h3>
+      <p>76.5 kg → 73.5–74.5 kg · body fat 16% → 13–14% · preserve muscle while on Mounjaro.</p>
+    </div>
+    <div class="plan-card">
+      <h3>🍽️ Nutrition targets</h3>
+      <ul>
+        <li>~2000 kcal/day</li>
+        <li>150–165g protein (front-loaded morning)</li>
+        <li>60–70g fat, 150–200g carbs</li>
+        <li>2.5–3L water · 5g creatine daily</li>
+      </ul>
+    </div>
+    <div class="plan-card">
+      <h3>💪 Weekly split</h3>
+      <ul>
+        <li>Mon · Lift lower body</li>
+        <li>Tue · Easy run (30–40m zone 2)</li>
+        <li>Wed · Lift upper push</li>
+        <li>Thu · Interval run (30m)</li>
+        <li>Fri · Lift upper pull</li>
+        <li>Sat · Golf + walk</li>
+        <li>Sun · Easy run (40–50m)</li>
+      </ul>
+    </div>
+    <div class="plan-card">
+      <h3>⚠️ Spondy rules</h3>
+      <ul>
+        <li>No loaded spinal extension</li>
+        <li>No conventional barbell deadlifts/squats</li>
+        <li>No bent-over rows · no overhead press with arch</li>
+        <li>Anti-rotation core: dead bugs, Pallof, side plank</li>
+      </ul>
+    </div>
+    <div class="plan-card">
+      <h3>📊 Weekly check-in</h3>
+      <p>Weigh daily, average weekly. Target 0.3–0.5 kg/week loss. If lifts drop, add 200 kcal. DEXA at start and week 8.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const WEEK = [
+  { day: 'Mon', session: 'Lift Lower', sessionFull: 'Lift · Lower body', type: 'lift' },
+  { day: 'Tue', session: 'Easy run', sessionFull: 'Run · Easy 30–40m', type: 'run' },
+  { day: 'Wed', session: 'Lift Push', sessionFull: 'Lift · Upper push', type: 'lift' },
+  { day: 'Thu', session: 'Intervals', sessionFull: 'Run · Intervals 30m', type: 'run' },
+  { day: 'Fri', session: 'Lift Pull', sessionFull: 'Lift · Upper pull', type: 'lift' },
+  { day: 'Sat', session: 'Golf', sessionFull: 'Golf + walk', type: 'golf' },
+  { day: 'Sun', session: 'Easy run', sessionFull: 'Run · Easy 40–50m', type: 'run' }
+];
+
+const MEALS = [
+  { id: 'b', emoji: '🥣', name: 'Breakfast', kcal: 500, p: 45, c: 50, f: 15,
+    opts: ['Greek yogurt 250g + oats 40g + berries + 15g almonds',
+           '3 whole eggs + 3 whites + 80g smoked salmon + rye slice'] },
+  { id: 'l', emoji: '🥗', name: 'Lunch', kcal: 600, p: 50, c: 60, f: 18,
+    opts: ['180g chicken + 150g rice + salad + 1 tbsp olive oil',
+           '200g lean beef + stir-fried veg + 150g rice or quinoa'] },
+  { id: 's', emoji: '🥤', name: 'Snack', kcal: 250, p: 30, c: 20, f: 8,
+    opts: ['Whey shake (30g) + apple + 20g walnuts',
+           '200g cottage cheese + berries'] },
+  { id: 'd', emoji: '🍽️', name: 'Dinner', kcal: 650, p: 45, c: 50, f: 25,
+    opts: ['200g salmon + 200g sweet potato + roasted veg',
+           '200g turkey/chicken thigh + 100g lentils + salad + 40g feta'] }
+];
+
+const WORKOUTS = {
+  'Mon': [
+    { name: 'DB goblet squat', sub: '4 × 10–12 · slow on the way down' },
+    { name: 'DB Bulgarian split squat', sub: '3 × 10–12 each leg · rear foot on bench' },
+    { name: 'DB glute bridge (floor)', sub: '4 × 12–15 · pause 2s at top, squeeze glutes' },
+    { name: 'DB Romanian deadlift', sub: '3 × 10–12 · hip hinge, soft knees' },
+    { name: 'DB reverse lunge', sub: '3 × 10 each leg' },
+    { name: 'DB calf raise (off a step)', sub: '3 × 15–20' },
+    { name: 'Dead bug', sub: '3 × 8 each side' },
+    { name: 'Pallof press (band, door-anchored)', sub: '3 × 10 each side' }
+  ],
+  'Tue': [
+    { name: 'Easy run', sub: '30–40 min · zone 2 / conversational' },
+    { name: 'Daily walk', sub: 'Steps target' }
+  ],
+  'Wed': [
+    { name: 'DB bench press (flat)', sub: '4 × 8–12' },
+    { name: 'Incline DB press (bench at 30°)', sub: '3 × 10–12' },
+    { name: 'Seated DB shoulder press', sub: '3 × 10–12 · brace core, no overarching' },
+    { name: 'DB floor fly', sub: '3 × 12–15 · controlled stretch' },
+    { name: 'Band pushdown (band anchored high)', sub: '3 × 15–20' },
+    { name: 'DB lateral raise', sub: '3 × 12–15' },
+    { name: 'Side plank', sub: '3 × 30–45s each side' }
+  ],
+  'Thu': [
+    { name: 'Interval run', sub: '10m WU · 6 × (2m hard / 2m easy) · 10m CD' },
+    { name: 'Daily walk', sub: 'Steps target' }
+  ],
+  'Fri': [
+    { name: 'Chest-supported DB row', sub: '4 × 10–12 · lie face-down on bench at 30°' },
+    { name: 'Band pulldown (door-anchored high)', sub: '3 × 10–15' },
+    { name: 'Single-arm DB row (knee on bench)', sub: '3 × 10–12 each side' },
+    { name: 'Band face pull', sub: '3 × 15' },
+    { name: 'DB curl + hammer superset', sub: '3 × 10 + 10' },
+    { name: 'DB overhead triceps extension', sub: '3 × 12–15 · two hands on one DB' },
+    { name: 'Bird dog', sub: '3 × 8 each side' },
+    { name: 'DB suitcase carry', sub: '3 × 30m each side' }
+  ],
+  'Sat': [
+    { name: '18 holes (or 9 + range)', sub: 'Walk if possible · hip rotates, not lumbar' },
+    { name: 'Evening walk', sub: 'If course was a cart day' }
+  ],
+  'Sun': [
+    { name: 'Easy run', sub: '40–50 min · zone 2' },
+    { name: 'Daily walk', sub: 'Steps target' }
+  ]
+};
+
+const SHOPPING = [
+  { cat: 'Proteins', icon: '🥩', items: ['Chicken breast 1.5 kg', 'Salmon fillets 600g', 'Lean beef strips 400g', 'White fish 400g', 'Turkey or chicken thigh 500g', 'Eggs (12)', 'Smoked salmon 160g', 'Greek yogurt 0–2% 1 kg', 'Cottage cheese 400g', 'Feta 100g', 'Whey protein (tub)'] },
+  { cat: 'Carbs & grains', icon: '🌾', items: ['Rolled oats 500g', 'Basmati rice 1 kg', 'Sweet potatoes 1 kg', 'Potatoes 1 kg', 'Quinoa 250g', 'Lentils 200g', 'Rye bread (loaf)'] },
+  { cat: 'Produce', icon: '🥬', items: ['Mixed berries 500g', 'Apples (6)', 'Bananas (6)', 'Lemons (3)', 'Mixed salad leaves', 'Spinach 200g', 'Tomatoes', 'Cucumber', 'Bell peppers (4)', 'Broccoli (2 heads)', 'Courgette (2)', 'Carrots', 'Onions', 'Garlic'] },
+  { cat: 'Fats & nuts', icon: '🥑', items: ['Almonds 200g', 'Walnuts 150g', 'Extra virgin olive oil', 'Avocados (3)'] },
+  { cat: 'Pantry', icon: '🧂', items: ['Creatine monohydrate (5g/day)', 'Sea salt, black pepper, herbs', 'Sparkling water', 'Coffee / tea'] }
+];
+
+const STATE_KEY = 'fitplan-state-v1';
+const START_KEY = 'fitplan-start-date';
+const TOTAL_DAYS = 56;
+
+let state = {};
+let currentDay = 0;
+let todayIdx = 0;
+
+function loadState() {
+  try { state = JSON.parse(localStorage.getItem(STATE_KEY) || '{}'); } catch (e) { state = {}; }
+  let startISO = localStorage.getItem(START_KEY);
+  if (!startISO) {
+    const now = new Date(); now.setHours(0,0,0,0);
+    startISO = now.toISOString();
+    localStorage.setItem(START_KEY, startISO);
+  }
+  const start = new Date(startISO);
+  const now = new Date(); now.setHours(0,0,0,0);
+  const diff = Math.floor((now - start) / 86400000);
+  todayIdx = Math.max(0, Math.min(diff, TOTAL_DAYS - 1));
+  currentDay = todayIdx;
+}
+
+function saveState() {
+  localStorage.setItem(STATE_KEY, JSON.stringify(state));
+}
+
+function getDS(d) {
+  if (!state[d]) state[d] = { meals: {}, training: {}, shopping: {} };
+  return state[d];
+}
+
+function dayMeta(d) {
+  return { ...WEEK[d % 7], num: d + 1 };
+}
+
+function renderHeader() {
+  const m = dayMeta(currentDay);
+  document.getElementById('day-num').textContent = m.num;
+  document.getElementById('day-sub').textContent = `${m.day} · ${m.session}`;
+  document.getElementById('today-badge').innerHTML =
+    currentDay === todayIdx ? '<span class="today-badge">TODAY</span>' : '';
+  const ds = getDS(currentDay);
+  const mealsDone = Object.values(ds.meals || {}).filter(Boolean).length;
+  const exs = WORKOUTS[m.day] || [];
+  const trainDone = exs.filter((_, i) => ds.training[i]).length;
+  document.getElementById('stat-meals').textContent = `${mealsDone}/4`;
+  document.getElementById('stat-train').textContent = `${trainDone}/${exs.length}`;
+  document.getElementById('prev-day').disabled = currentDay === 0;
+  document.getElementById('next-day').disabled = currentDay === TOTAL_DAYS - 1;
+}
+
+function renderMeals() {
+  const ds = getDS(currentDay);
+  const m = dayMeta(currentDay);
+  let html = '';
+
+  const tip = m.type === 'lift' ? 'Add 30–40g extra carbs around your session today.' :
+              m.type === 'run' && m.day === 'Thu' ? 'Add carbs pre-run for intervals.' :
+              m.type === 'golf' ? 'Bring a protein bar + nuts — easy to under-eat on course.' : '';
+  if (tip) html += `<div class="banner info"><span class="banner-icon">💡</span><span>${tip}</span></div>`;
+
+  MEALS.forEach(meal => {
+    const done = !!ds.meals[meal.id];
+    html += `
+      <div class="card meal-card ${done ? 'done' : ''}" data-meal="${meal.id}">
+        <div class="meal-header">
+          <div style="flex:1;">
+            <div class="meal-title ${done ? 'done' : ''}">
+              <span class="meal-emoji">${meal.emoji}</span>
+              <span class="meal-name">${meal.name}</span>
+            </div>
+            <div class="macros">
+              <span class="macro-pill kcal">${meal.kcal} kcal</span>
+              <span class="macro-pill p">${meal.p}g P</span>
+              <span class="macro-pill c">${meal.c}g C</span>
+              <span class="macro-pill f">${meal.f}g F</span>
+            </div>
+          </div>
+          <button class="check ${done ? 'done' : ''}" data-toggle-meal="${meal.id}" aria-label="Mark ${meal.name}"></button>
+        </div>
+        <div class="opts">
+          ${meal.opts.map(o => `<div class="opt">${o}</div>`).join('')}
+        </div>
+      </div>`;
+  });
+
+  const totalP = MEALS.reduce((s, x) => s + (ds.meals[x.id] ? x.p : 0), 0);
+  const totalK = MEALS.reduce((s, x) => s + (ds.meals[x.id] ? x.kcal : 0), 0);
+  const protPct = Math.min(100, Math.round((totalP / 160) * 100));
+  html += `
+    <div class="card summary-card">
+      <div class="label">Today so far</div>
+      <div class="summary-grid">
+        <div>
+          <div class="summary-val">${totalK}</div>
+          <div class="summary-sub">of ~2000 kcal</div>
+        </div>
+        <div>
+          <div class="summary-val">${totalP}g</div>
+          <div class="summary-sub">protein · ${protPct}% of goal</div>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('panel-meals').innerHTML = html;
+}
+
+function renderTraining() {
+  const ds = getDS(currentDay);
+  const m = dayMeta(currentDay);
+  const exs = WORKOUTS[m.day] || [];
+  const pillClass = m.type;
+
+  let html = `<div class="session-pill ${pillClass}">
+    <span>${m.type === 'lift' ? '🏋️' : m.type === 'run' ? '🏃' : '⛳'}</span>
+    ${m.sessionFull}
+  </div>`;
+
+  const done = exs.filter((_, i) => ds.training[i]).length;
+  const pct = exs.length ? Math.round((done / exs.length) * 100) : 0;
+
+  html += `
+    <div class="progress-card">
+      <div class="progress-top">
+        <span class="progress-label">Progress</span>
+        <span class="progress-num">${done}/${exs.length}</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width: ${pct}%"></div></div>
+    </div>`;
+
+  html += `<div class="ex-list">`;
+  exs.forEach((ex, i) => {
+    const isDone = !!ds.training[i];
+    html += `
+      <div class="ex-item" data-toggle-ex="${i}">
+        <button class="check ${isDone ? 'done' : ''}" aria-label="Toggle ${ex.name}"></button>
+        <div class="ex-body">
+          <div class="ex-name ${isDone ? 'done' : ''}">${ex.name}</div>
+          <div class="ex-sub">${ex.sub}</div>
+        </div>
+      </div>`;
+  });
+  html += `</div>`;
+
+  if (m.type === 'lift') {
+    html += `<div class="banner warn" style="margin-top: 10px;">
+      <span class="banner-icon">⚠️</span>
+      <span>Spondy: no loaded spinal extension. Brace ribs down on hip thrusts; stop if you feel any leg tingling.</span>
+    </div>`;
+  }
+  if (m.type === 'run') {
+    html += `<div class="banner info" style="margin-top: 10px;">
+      <span class="banner-icon">👟</span>
+      <span>Run on softer surfaces when possible. Stop if leg pain or tingling shows up.</span>
+    </div>`;
+  }
+
+  document.getElementById('panel-training').innerHTML = html;
+}
+
+function renderShopping() {
+  const ds = getDS(currentDay);
+  if (!ds.shopping) ds.shopping = {};
+  let html = `<div class="banner info"><span class="banner-icon">🛒</span><span>Weekly list — tap items as you grab them. Lasts ~3–4 days for one person.</span></div>`;
+
+  SHOPPING.forEach(group => {
+    html += `<div class="shop-header"><span class="shop-header-icon">${group.icon}</span>${group.cat}</div>`;
+    html += `<div class="card shop-card">`;
+    group.items.forEach((it, i) => {
+      const key = `${group.cat}-${i}`;
+      const done = !!ds.shopping[key];
+      html += `
+        <div class="shop-item" data-toggle-shop="${key}">
+          <button class="check ${done ? 'done' : ''}" aria-label="Toggle ${it}"></button>
+          <span class="shop-text ${done ? 'done' : ''}">${it}</span>
+        </div>`;
+    });
+    html += `</div>`;
+  });
+
+  document.getElementById('panel-shopping').innerHTML = html;
+}
+
+function renderAll() {
+  renderHeader();
+  renderMeals();
+  renderTraining();
+  renderShopping();
+}
+
+// Tabs
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('panel-' + t.dataset.panel).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+
+// Toggle handlers
+document.addEventListener('click', (e) => {
+  const ds = getDS(currentDay);
+  const mealEl = e.target.closest('[data-toggle-meal]');
+  const exEl = e.target.closest('[data-toggle-ex]');
+  const shopEl = e.target.closest('[data-toggle-shop]');
+
+  if (mealEl) {
+    const id = mealEl.dataset.toggleMeal;
+    ds.meals[id] = !ds.meals[id];
+    saveState(); renderHeader(); renderMeals();
+  } else if (exEl) {
+    const i = exEl.dataset.toggleEx;
+    ds.training[i] = !ds.training[i];
+    saveState(); renderHeader(); renderTraining();
+  } else if (shopEl) {
+    const k = shopEl.dataset.toggleShop;
+    ds.shopping[k] = !ds.shopping[k];
+    saveState(); renderShopping();
+  }
+});
+
+// Day nav
+document.getElementById('prev-day').addEventListener('click', () => {
+  if (currentDay > 0) { currentDay--; renderAll(); }
+});
+document.getElementById('next-day').addEventListener('click', () => {
+  if (currentDay < TOTAL_DAYS - 1) { currentDay++; renderAll(); }
+});
+
+// Reset day
+document.getElementById('reset-day').addEventListener('click', () => {
+  if (confirm('Reset all checks for this day?')) {
+    state[currentDay] = { meals: {}, training: {}, shopping: {} };
+    saveState(); renderAll();
+  }
+});
+
+// Menu sheet
+const menuSheet = document.getElementById('menu-sheet');
+const planSheet = document.getElementById('plan-sheet');
+document.getElementById('menu-btn').addEventListener('click', () => menuSheet.classList.add('open'));
+[menuSheet, planSheet].forEach(s => {
+  s.addEventListener('click', (e) => { if (e.target === s) s.classList.remove('open'); });
+});
+document.querySelectorAll('[data-action]').forEach(el => {
+  el.addEventListener('click', () => {
+    const a = el.dataset.action;
+    menuSheet.classList.remove('open');
+    if (a === 'go-today') { currentDay = todayIdx; renderAll(); window.scrollTo({top:0,behavior:'smooth'}); }
+    else if (a === 'plan') { planSheet.classList.add('open'); }
+    else if (a === 'reset-all') {
+      if (confirm('Wipe ALL progress and restart from day 1?')) {
+        localStorage.removeItem(STATE_KEY);
+        localStorage.removeItem(START_KEY);
+        state = {};
+        loadState(); renderAll();
+      }
+    }
+    else if (a === 'export') {
+      const out = { exported: new Date().toISOString(), start: localStorage.getItem(START_KEY), state };
+      const text = JSON.stringify(out, null, 2);
+      if (navigator.share) {
+        navigator.share({ title: 'FitPlan progress', text }).catch(()=>{
+          navigator.clipboard.writeText(text); alert('Copied to clipboard');
+        });
+      } else {
+        navigator.clipboard.writeText(text); alert('Progress copied to clipboard');
+      }
+    }
+  });
+});
+
+// Swipe to change days
+let touchStartX = null;
+document.addEventListener('touchstart', (e) => {
+  if (e.target.closest('.sheet-overlay') || e.target.closest('.ex-item') || e.target.closest('.shop-item') || e.target.closest('.meal-card')) return;
+  touchStartX = e.touches[0].clientX;
+});
+document.addEventListener('touchend', (e) => {
+  if (touchStartX === null) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  touchStartX = null;
+  if (Math.abs(dx) < 60) return;
+  if (dx < 0 && currentDay < TOTAL_DAYS - 1) { currentDay++; renderAll(); }
+  else if (dx > 0 && currentDay > 0) { currentDay--; renderAll(); }
+});
+
+loadState();
+renderAll();
+</script>
+</body>
+</html>
